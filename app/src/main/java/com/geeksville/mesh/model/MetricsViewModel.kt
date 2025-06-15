@@ -190,7 +190,7 @@ enum class TimeFrame(
      * @param time in seconds
      */
     fun dp(screenWidth: Int, time: Long): Dp {
-        val timePerScreen = this.lineInterval() * 12 //compress time
+        val timePerScreen = this.lineInterval()
         val multiplier = time / timePerScreen
         val dp = (screenWidth * multiplier).toInt().dp
         return dp.takeIf { it != 0.dp } ?: screenWidth.dp

@@ -51,7 +51,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -201,7 +201,10 @@ private fun PowerMetricsChart(
     var leftYAxisWidth by remember { mutableStateOf(0) }
     var rightYAxisWidth by remember { mutableStateOf(0) }
 
-    var screenWidth = LocalWindowInfo.current.containerSize.width
+    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val dp by remember(key1 = selectedTime) {
+        mutableStateOf(selectedTime.dp(screenWidth, time = (newest.time - oldest.time).toLong()))
+    }
 
     Row() {
         YAxisLabels(
@@ -210,12 +213,8 @@ private fun PowerMetricsChart(
             minValue = Power.CURRENT.min,
             maxValue = Power.CURRENT.max,
             lineLimits = 6,
-            onWidthMeasured = { leftYAxisWidth = it }
         )
-        screenWidth -= leftYAxisWidth + leftYAxisWidth
-        val dp by remember(key1 = selectedTime) {
-            mutableStateOf(selectedTime.dp(screenWidth, time = (newest.time - oldest.time).toLong()))
-        }
+
         Box(
             contentAlignment = Alignment.TopStart,
             modifier = Modifier
@@ -308,7 +307,6 @@ private fun PowerMetricsChart(
             maxValue = Power.VOLTAGE.max,
             lineLimits = 6,
             formatFloat = true,
-            onWidthMeasured = { rightYAxisWidth = it }
         )
     }
 

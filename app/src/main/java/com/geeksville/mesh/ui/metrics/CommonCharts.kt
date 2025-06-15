@@ -143,16 +143,11 @@ fun YAxisLabels(
     maxValue: Float,
     lineLimits: Int = LINE_LIMIT,
     formatFloat: Boolean = false,
-    onWidthMeasured: (Int) -> Unit = {} // New callback parameter
 ) {
     val range = maxValue - minValue
     val verticalSpacing = range / lineLimits
     val density = LocalDensity.current
-    Canvas(modifier = modifier.onGloballyPositioned { layoutCoordinates ->
-        // Callback with the measured width in pixels
-        onWidthMeasured(layoutCoordinates.size.width)
-    } ) {
-
+    Canvas(modifier = modifier) {
         val height = size.height
 
         /* Y Labels */
