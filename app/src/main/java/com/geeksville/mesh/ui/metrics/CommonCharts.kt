@@ -47,6 +47,7 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -141,12 +142,16 @@ fun YAxisLabels(
     minValue: Float,
     maxValue: Float,
     lineLimits: Int = LINE_LIMIT,
-    formatFloat: Boolean = false
+    formatFloat: Boolean = false,
+    onWidthMeasured: (Int) -> Unit = {} // New callback parameter
 ) {
     val range = maxValue - minValue
     val verticalSpacing = range / lineLimits
     val density = LocalDensity.current
-    Canvas(modifier = modifier) {
+    Canvas(modifier = modifier.onGloballyPositioned { layoutCoordinates ->
+        // Callback with the measured width in pixels
+        onWidthMeasured(layoutCoordinates.size.width)
+    } ) {
 
         val height = size.height
 
