@@ -147,9 +147,13 @@ enum class TimeFrame(
                 TimeUnit.HOURS.toSeconds(1)
 
             ONE_WEEK.ordinal ->
-                TimeUnit.HOURS.toSeconds(1)
+                TimeUnit.HOURS.toSeconds(2)
+
             TWO_WEEKS.ordinal ->
                 TimeUnit.HOURS.toSeconds(4)
+
+            FOUR_WEEKS.ordinal ->
+                TimeUnit.HOURS.toSeconds(6)
 
             else ->
                 TimeUnit.HOURS.toSeconds(8)
@@ -167,8 +171,16 @@ enum class TimeFrame(
             FORTY_EIGHT_HOURS.ordinal ->
                 TimeUnit.HOURS.toSeconds(12)
 
+            ONE_WEEK.ordinal ->
+                TimeUnit.HOURS.toSeconds(24)
+
+            TWO_WEEKS.ordinal ->
+                TimeUnit.HOURS.toSeconds(48)
+
+            FOUR_WEEKS.ordinal ->
+                TimeUnit.HOURS.toSeconds(96)
             else ->
-                TimeUnit.DAYS.toSeconds(1)
+                TimeUnit.DAYS.toSeconds(7)
         }
     }
 
