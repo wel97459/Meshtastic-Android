@@ -71,14 +71,41 @@ import com.geeksville.mesh.util.GraphUtil
 import com.geeksville.mesh.util.GraphUtil.createPath
 
 @Suppress("MagicNumber")
-private enum class Power(val color: Color, val min: Float, val max: Float) {
-    CURRENT(InfantryBlue, -500f, 500f),
-    VOLTAGE(Color.Red, 0f, 20f);
+private enum class Power(val color: Color, var min: Float, var max: Float) {
+    CURRENT(InfantryBlue, 0f, 0f),
+    VOLTAGE(Color.Red, 0f, 0f);
 
     /**
      * Difference between the metrics `max` and `min` values.
      */
     fun difference() = max - min
+}
+
+private fun computeMinMax(telemetries: List<Telemetry>, selectedChannel: PowerChannel){
+    Power.VOLTAGE.max = 0.0f
+    Power.VOLTAGE.min = 0.0f
+    var index = 0
+    while (index < telemetries.size) {
+        val telemetry = telemetries.getOrNull(index) ?: telemetries.last()
+        val voltage = retrieveVoltage(selectedChannel, telemetry)
+        if(voltage > Power.VOLTAGE.max) Power.VOLTAGE.max = voltage
+        val current = retrieveCurrent(selectedChannel, telemetry)
+        if(current > Power.CURRENT.max) Power.CURRENT.max = current
+        index++
+    }
+    Power.VOLTAGE.min = Power.VOLTAGE.max
+    Power.CURRENT.min = Power.CURRENT.max
+    index = 0
+    while (index < telemetries.size) {
+        val telemetry = telemetries.getOrNull(index) ?: telemetries.last()
+        val voltage = retrieveVoltage(selectedChannel, telemetry)
+        if(voltage < Power.VOLTAGE.min ) Power.VOLTAGE.min = voltage
+        val current = retrieveCurrent(selectedChannel, telemetry)
+        if(current < Power.CURRENT.min) Power.CURRENT.min = current
+        index++
+    }
+    Power.VOLTAGE.max += 0.1f
+    Power.VOLTAGE.min -= 0.1f
 }
 
 private enum class PowerChannel(@StringRes val strRes: Int) {
@@ -164,6 +191,8 @@ private fun PowerMetricsChart(
 
     Spacer(modifier = Modifier.height(16.dp))
 
+    computeMinMax(telemetries, selectedChannel)
+
     val graphColor = MaterialTheme.colorScheme.onSurface
     val currentDiff = Power.CURRENT.difference()
     val voltageDiff = Power.VOLTAGE.difference()
@@ -180,6 +209,7 @@ private fun PowerMetricsChart(
             Power.CURRENT.color,
             minValue = Power.CURRENT.min,
             maxValue = Power.CURRENT.max,
+            lineLimits = 6,
         )
         Box(
             contentAlignment = Alignment.TopStart,
@@ -189,14 +219,15 @@ private fun PowerMetricsChart(
         ) {
             HorizontalLinesOverlay(
                 modifier.width(dp),
-                lineColors = List(size = 5) { graphColor },
+                lineColors = List(size = 7) { graphColor },
+                lineLimits = 6,
             )
 
             TimeAxisOverlay(
                 modifier.width(dp),
                 oldest = oldest.time,
                 newest = newest.time,
-                selectedTime.lineInterval()
+                selectedTime.lineInterval(),
             )
 
             /* Plot */
@@ -217,7 +248,7 @@ private fun PowerMetricsChart(
                         timeThreshold = selectedTime.timeThreshold()
                     ) { i ->
                         val telemetry = telemetries.getOrNull(i) ?: telemetries.last()
-                        val ratio = retrieveVoltage(selectedChannel, telemetry) / voltageDiff
+                        val ratio = (retrieveVoltage(selectedChannel, telemetry) - Power.VOLTAGE.min) / voltageDiff
                         val y = height - (ratio * height)
                         return@createPath y
                     }
@@ -267,6 +298,8 @@ private fun PowerMetricsChart(
             Power.VOLTAGE.color,
             minValue = Power.VOLTAGE.min,
             maxValue = Power.VOLTAGE.max,
+            lineLimits = 6,
+            formatFloat = true,
         )
     }
 

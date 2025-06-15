@@ -104,9 +104,10 @@ fun ChartHeader(amount: Int) {
 fun HorizontalLinesOverlay(
     modifier: Modifier,
     lineColors: List<Color>,
+    lineLimits: Int = LINE_LIMIT,
 ) {
     /* 100 is a good number to divide into quarters */
-    val verticalSpacing = MAX_PERCENT_VALUE / LINE_LIMIT
+    val verticalSpacing = MAX_PERCENT_VALUE / lineLimits
     Canvas(modifier = modifier) {
 
         val lineStart = 0f
@@ -114,7 +115,7 @@ fun HorizontalLinesOverlay(
         val width = size.width
         /* Horizontal Lines */
         var lineY = 0f
-        for (i in 0..LINE_LIMIT) {
+        for (i in 0..lineLimits) {
             val ratio = lineY / MAX_PERCENT_VALUE
             val y = height - (ratio * height)
             drawLine(
@@ -139,9 +140,11 @@ fun YAxisLabels(
     labelColor: Color,
     minValue: Float,
     maxValue: Float,
+    lineLimits: Int = LINE_LIMIT,
+    formatFloat: Boolean = false
 ) {
     val range = maxValue - minValue
-    val verticalSpacing = range / LINE_LIMIT
+    val verticalSpacing = range / lineLimits
     val density = LocalDensity.current
     Canvas(modifier = modifier) {
 
@@ -158,11 +161,12 @@ fun YAxisLabels(
 
         drawContext.canvas.nativeCanvas.apply {
             var label = minValue
-            repeat(LINE_LIMIT + 1) {
+            repeat(lineLimits + 1) {
                 val ratio = (label - minValue) / range
                 val y = height - (ratio * height)
+                val labelText = if(formatFloat) "%.2f".format(label) else "${label.toInt()}"
                 drawText(
-                    "${label.toInt()}",
+                    labelText,
                     0f,
                     y + 4.dp.toPx(),
                     textPaint

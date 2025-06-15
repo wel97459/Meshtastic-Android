@@ -141,17 +141,18 @@ enum class TimeFrame(
     fun lineInterval(): Long {
         return when (this.ordinal) {
             TWENTY_FOUR_HOURS.ordinal ->
-                TimeUnit.HOURS.toSeconds(6)
+                TimeUnit.MINUTES.toSeconds(30)
 
             FORTY_EIGHT_HOURS.ordinal ->
-                TimeUnit.HOURS.toSeconds(12)
+                TimeUnit.HOURS.toSeconds(1)
 
-            ONE_WEEK.ordinal,
+            ONE_WEEK.ordinal ->
+                TimeUnit.HOURS.toSeconds(1)
             TWO_WEEKS.ordinal ->
-                TimeUnit.DAYS.toSeconds(1)
+                TimeUnit.HOURS.toSeconds(4)
 
             else ->
-                TimeUnit.DAYS.toSeconds(7)
+                TimeUnit.HOURS.toSeconds(8)
         }
     }
 
@@ -177,7 +178,7 @@ enum class TimeFrame(
      * @param time in seconds
      */
     fun dp(screenWidth: Int, time: Long): Dp {
-        val timePerScreen = this.lineInterval()
+        val timePerScreen = this.lineInterval() * 12 //compress time
         val multiplier = time / timePerScreen
         val dp = (screenWidth * multiplier).toInt().dp
         return dp.takeIf { it != 0.dp } ?: screenWidth.dp
