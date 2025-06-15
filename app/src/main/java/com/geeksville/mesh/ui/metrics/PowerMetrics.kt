@@ -198,19 +198,24 @@ private fun PowerMetricsChart(
     val voltageDiff = Power.VOLTAGE.difference()
 
     val scrollState = rememberScrollState()
-    val screenWidth = LocalWindowInfo.current.containerSize.width
-    val dp by remember(key1 = selectedTime) {
-        mutableStateOf(selectedTime.dp(screenWidth, time = (newest.time - oldest.time).toLong()))
-    }
+    var leftYAxisWidth by remember { mutableStateOf(0) }
+    var rightYAxisWidth by remember { mutableStateOf(0) }
 
-    Row {
+    var screenWidth = LocalWindowInfo.current.containerSize.width
+
+    Row() {
         YAxisLabels(
             modifier = modifier.weight(weight = .1f),
             Power.CURRENT.color,
             minValue = Power.CURRENT.min,
             maxValue = Power.CURRENT.max,
             lineLimits = 6,
+            onWidthMeasured = { leftYAxisWidth = it }
         )
+        screenWidth -= leftYAxisWidth + leftYAxisWidth
+        val dp by remember(key1 = selectedTime) {
+            mutableStateOf(selectedTime.dp(screenWidth, time = (newest.time - oldest.time).toLong()))
+        }
         Box(
             contentAlignment = Alignment.TopStart,
             modifier = Modifier
@@ -248,7 +253,10 @@ private fun PowerMetricsChart(
                         timeThreshold = selectedTime.timeThreshold()
                     ) { i ->
                         val telemetry = telemetries.getOrNull(i) ?: telemetries.last()
-                        val ratio = (retrieveVoltage(selectedChannel, telemetry) - Power.VOLTAGE.min) / voltageDiff
+                        val ratio = (retrieveVoltage(
+                            selectedChannel,
+                            telemetry
+                        ) - Power.VOLTAGE.min) / voltageDiff
                         val y = height - (ratio * height)
                         return@createPath y
                     }
@@ -300,6 +308,7 @@ private fun PowerMetricsChart(
             maxValue = Power.VOLTAGE.max,
             lineLimits = 6,
             formatFloat = true,
+            onWidthMeasured = { rightYAxisWidth = it }
         )
     }
 
