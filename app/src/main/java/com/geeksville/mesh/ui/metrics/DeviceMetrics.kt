@@ -50,7 +50,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -161,7 +161,7 @@ private fun DeviceMetricsChart(
     val graphColor = MaterialTheme.colorScheme.onSurface
 
     val scrollState = rememberScrollState()
-    val screenWidth = LocalWindowInfo.current.containerSize.width
+    val screenWidth = LocalConfiguration.current.screenWidthDp - 30
     val dp by remember(key1 = selectedTime) {
         mutableStateOf(selectedTime.dp(screenWidth, time = timeDiff.toLong()))
     }

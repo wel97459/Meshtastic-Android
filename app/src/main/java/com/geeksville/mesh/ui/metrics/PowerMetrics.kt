@@ -47,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -69,6 +70,7 @@ import com.geeksville.mesh.ui.metrics.CommonCharts.DATE_TIME_FORMAT
 import com.geeksville.mesh.ui.metrics.CommonCharts.MS_PER_SEC
 import com.geeksville.mesh.util.GraphUtil
 import com.geeksville.mesh.util.GraphUtil.createPath
+import com.geeksville.mesh.util.GraphUtil.plotPoint
 
 @Suppress("MagicNumber")
 private enum class Power(val color: Color, var min: Float, var max: Float) {
@@ -201,9 +203,9 @@ private fun PowerMetricsChart(
     var leftYAxisWidth by remember { mutableStateOf(0) }
     var rightYAxisWidth by remember { mutableStateOf(0) }
 
-    val screenWidth = LocalConfiguration.current.screenWidthDp
+    val screenWidth = LocalConfiguration.current.screenWidthDp - 60
     val dp by remember(key1 = selectedTime) {
-        mutableStateOf(selectedTime.dp(screenWidth, time = (newest.time - oldest.time).toLong()))
+        mutableStateOf(selectedTime.dp(screenWidth, time = timeDiff.toLong()))
     }
 
     Row() {
@@ -238,6 +240,7 @@ private fun PowerMetricsChart(
             Canvas(modifier = modifier.width(dp)) {
                 val width = size.width
                 val height = size.height
+
                 /* Voltage */
                 var index = 0
                 while (index < telemetries.size) {
@@ -256,7 +259,14 @@ private fun PowerMetricsChart(
                             selectedChannel,
                             telemetry
                         ) - Power.VOLTAGE.min) / voltageDiff
+                        val xRatio = (telemetry.time - oldest.time).toFloat() / timeDiff
+                        val x = xRatio * width
                         val y = height - (ratio * height)
+                        drawContext.canvas.drawCircle(
+                            center = Offset(x, y),
+                            radius = GraphUtil.RADIUS * 2,
+                            paint = androidx.compose.ui.graphics.Paint().apply { this.color = Power.VOLTAGE.color }
+                        )
                         return@createPath y
                     }
                     drawPath(
@@ -286,7 +296,14 @@ private fun PowerMetricsChart(
                             selectedChannel,
                             telemetry
                         ) - Power.CURRENT.min) / currentDiff
+                        val xRatio = (telemetry.time - oldest.time).toFloat() / timeDiff
+                        val x = xRatio * width
                         val y = height - (ratio * height)
+                        drawContext.canvas.drawCircle(
+                            center = Offset(x, y),
+                            radius = GraphUtil.RADIUS * 2,
+                            paint = androidx.compose.ui.graphics.Paint().apply { this.color = Power.CURRENT.color }
+                        )
                         return@createPath y
                     }
                     drawPath(
