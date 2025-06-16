@@ -17,6 +17,7 @@
 
 package com.geeksville.mesh.ui.metrics
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -46,6 +47,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -131,6 +133,7 @@ fun DeviceMetricsScreen(
     }
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Suppress("LongMethod")
 @Composable
 private fun DeviceMetricsChart(
@@ -161,7 +164,7 @@ private fun DeviceMetricsChart(
     val graphColor = MaterialTheme.colorScheme.onSurface
 
     val scrollState = rememberScrollState()
-    val screenWidth = LocalConfiguration.current.screenWidthDp - 30
+    val screenWidth = LocalConfiguration.current.screenWidthDp - 30 //subtract the size of the YAxisLabels
     val dp by remember(key1 = selectedTime) {
         mutableStateOf(selectedTime.dp(screenWidth, time = timeDiff.toLong()))
     }
@@ -237,7 +240,14 @@ private fun DeviceMetricsChart(
                     ) { i ->
                         val telemetry = telemetries.getOrNull(i) ?: telemetries.last()
                         val ratio = telemetry.deviceMetrics.batteryLevel / MAX_PERCENT_VALUE
+                        val xRatio = (telemetry.time - oldest.time).toFloat() / timeDiff
+                        val x = xRatio * width
                         val y = height - (ratio * height)
+                        drawContext.canvas.drawCircle(
+                            center = Offset(x, y),
+                            radius = GraphUtil.RADIUS * 2,
+                            paint = androidx.compose.ui.graphics.Paint().apply { this.color = Device.BATTERY.color }
+                        )
                         return@createPath y
                     }
                     drawPath(

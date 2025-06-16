@@ -161,6 +161,34 @@ enum class TimeFrame(
     }
 
     /**
+     * The time interval of graph slider
+     * time on the x-axis.
+     *
+     * @return seconds epoch seconds
+     */
+    fun timePerScreen(): Long {
+        return when (this.ordinal) {
+            TWENTY_FOUR_HOURS.ordinal ->
+                TimeUnit.HOURS.toSeconds(1)
+
+            FORTY_EIGHT_HOURS.ordinal ->
+                TimeUnit.HOURS.toSeconds(2)
+
+            ONE_WEEK.ordinal ->
+                TimeUnit.HOURS.toSeconds(4)
+
+            TWO_WEEKS.ordinal ->
+                TimeUnit.HOURS.toSeconds(8)
+
+            FOUR_WEEKS.ordinal ->
+                TimeUnit.HOURS.toSeconds(12)
+
+            else ->
+                TimeUnit.HOURS.toSeconds(24)
+        }
+    }
+
+    /**
      * Used to detect a significant time separation between [Telemetry]s.
      */
     fun timeThreshold(): Long {
@@ -190,7 +218,7 @@ enum class TimeFrame(
      * @param time in seconds
      */
     fun dp(screenWidth: Int, time: Long): Dp {
-        val timePerScreen = this.lineInterval()
+        val timePerScreen = this.timePerScreen()
         val multiplier = time / timePerScreen
         val dp = (screenWidth * multiplier).toInt().dp
         return dp.takeIf { it != 0.dp } ?: screenWidth.dp

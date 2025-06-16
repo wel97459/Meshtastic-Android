@@ -17,6 +17,7 @@
 
 package com.geeksville.mesh.ui.metrics
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
@@ -165,6 +166,7 @@ fun PowerMetricsScreen(
     }
 }
 
+@SuppressLint("ConfigurationScreenWidthHeight")
 @Suppress("LongMethod")
 @Composable
 private fun PowerMetricsChart(
@@ -200,10 +202,8 @@ private fun PowerMetricsChart(
     val voltageDiff = Power.VOLTAGE.difference()
 
     val scrollState = rememberScrollState()
-    var leftYAxisWidth by remember { mutableStateOf(0) }
-    var rightYAxisWidth by remember { mutableStateOf(0) }
 
-    val screenWidth = LocalConfiguration.current.screenWidthDp - 60
+    val screenWidth = LocalConfiguration.current.screenWidthDp - 60 //subtract the size of the YAxisLabels
     val dp by remember(key1 = selectedTime) {
         mutableStateOf(selectedTime.dp(screenWidth, time = timeDiff.toLong()))
     }
