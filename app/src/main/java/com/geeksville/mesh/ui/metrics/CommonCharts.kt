@@ -195,12 +195,13 @@ fun TimeAxisOverlay(
 
         val height = size.height
         val width = size.width - 28.dp.toPx()
-
+        val timeInt = timeInterval / 2
         /* Cut out the time remaining in order to place the lines on the dot. */
-        val timeRemaining = oldest % timeInterval
+        val timeRemaining = oldest % timeInt
         var current = oldest.toLong()
         current -= timeRemaining
-        current += timeInterval
+        current += timeInt
+        var evenOdd: Boolean = false
 
         val textPaint = Paint().apply {
             color = lineColor.toArgb()
@@ -223,22 +224,24 @@ fun TimeAxisOverlay(
                     cap = StrokeCap.Round,
                     pathEffect = PathEffect.dashPathEffect(floatArrayOf(LINE_ON, LINE_OFF), 0f)
                 )
-
-                /* Time */
-                drawText(
-                    TIME_FORMAT.format(current * MS_PER_SEC),
-                    x,
-                    0f,
-                    textPaint
-                )
-                /* Date */
-                drawText(
-                    DATE_FORMAT.format(current * MS_PER_SEC),
-                    x,
-                    DATE_Y,
-                    textPaint
-                )
-                current += timeInterval
+                if (!evenOdd) {
+                    /* Time */
+                    drawText(
+                        TIME_FORMAT.format(current * MS_PER_SEC),
+                        x,
+                        0f,
+                        textPaint
+                    )
+                    /* Date */
+                    drawText(
+                        DATE_FORMAT.format(current * MS_PER_SEC),
+                        x,
+                        DATE_Y,
+                        textPaint
+                    )
+                }
+                current += timeInt
+                evenOdd = !evenOdd
             }
         }
     }
